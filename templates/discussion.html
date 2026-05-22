@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Discussion - Newton's Divided Differences</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="/" class="logo">
+                Numerical<span>Methods</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="/">Calculator</a></li>
+                    <li><a href="/examples">Worked Examples</a></li>
+                    <li><a href="/discussion" class="active">Theory & Discussion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" style="margin-bottom: 2.5rem;">
+            <h1>Theory & Discussion</h1>
+            <p>A deep dive into polynomial interpolation, numerical stability, complexity analysis, and mathematical proofs.</p>
+        </section>
+
+        <!-- Topic 1: Newton vs Lagrange -->
+        <section class="card">
+            <h2 class="card-title">Newton vs. Lagrange Interpolation</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Both Newton's divided difference method and the Lagrange method yield the <strong>exact same unique interpolating polynomial</strong> for a given set of points. However, their algebraic structures are vastly different, which leads to different computational characteristics.
+            </p>
+            
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; margin: 1.2rem 0 0.5rem; color: var(--primary);">1. Incremental Updates</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                If we have a polynomial \(P_{n-1}(x)\) interpolating \(n\) points, and we wish to add a new point \((x_n, y_n)\):
+            </p>
+            <ul style="color: var(--text-secondary); margin-left: 2rem; margin-bottom: 1rem;">
+                <li style="margin-bottom: 0.5rem;"><strong>Lagrange Method</strong>: Requires recalculating every cardinal basis polynomial \(L_i(x)\) from scratch. The previous work cannot be reused. This takes \(O(n^2)\) operations.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Newton Method</strong>: We only need to compute the new row of divided differences corresponding to \(x_n\). The existing coefficients \(a_0, \dots, a_{n-1}\) remain unchanged. We just add one new term to the polynomial:
+                \[P_n(x) = P_{n-1}(x) + f[x_0, x_1, \dots, x_n]\prod_{i=0}^{n-1}(x-x_i)\]
+                This incremental step takes only \(O(n)\) operations.
+                </li>
+            </ul>
+
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; margin: 1.2rem 0 0.5rem; color: var(--primary);">2. Computational Complexity</h3>
+            <div class="table-wrapper" style="max-width: 500px; margin: 1rem 0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Lagrange</th>
+                            <th>Newton</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Table Setup</strong></td>
+                            <td>None</td>
+                            <td>\(O(n^2)\)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interpolation (Single Point)</strong></td>
+                            <td>\(O(n^2)\)</td>
+                            <td>\(O(n)\) (using nested multiplication)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adding a Data Point</strong></td>
+                            <td>\(O(n^2)\)</td>
+                            <td>\(O(n)\)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Topic 2: Derivation and divided difference recurrence -->
+        <section class="card">
+            <h2 class="card-title">Mathematical Derivation</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                We assume the interpolating polynomial has the following lower-triangular form:
+                \[P_{n-1}(x) = c_0 + c_1(x-x_0) + c_2(x-x_0)(x-x_1) + \dots + c_{n-1}(x-x_0)\cdots(x-x_{n-2})\]
+                To find the coefficients \(c_k\), we substitute the data points successively:
+            </p>
+            <ul style="color: var(--text-secondary); margin-left: 2rem; margin-bottom: 1rem;">
+                <li style="margin-bottom: 0.5rem;">Substitute \(x = x_0\): \(P_{n-1}(x_0) = c_0 = y_0 \implies c_0 = f[x_0]\)</li>
+                <li style="margin-bottom: 0.5rem;">Substitute \(x = x_1\): \(P_{n-1}(x_1) = c_0 + c_1(x_1 - x_0) = y_1 \implies c_1 = \frac{y_1 - y_0}{x_1 - x_0} = f[x_0, x_1]\)</li>
+                <li style="margin-bottom: 0.5rem;">By induction, we find that the \(k\)-th coefficient is the \(k\)-th order divided difference:
+                \[c_k = f[x_0, x_1, \dots, x_k]\]
+                </li>
+            </ul>
+            <p style="color: var(--text-secondary);">
+                Divided differences satisfy the recurrence relation:
+                \[f[x_i, \dots, x_{i+k}] = \frac{f[x_{i+1}, \dots, x_{i+k}] - f[x_i, \dots, x_{i+k-1}]}{x_{i+k} - x_i}\]
+                This allows us to arrange the calculations in an upper-triangular table.
+            </p>
+        </section>
+
+        <!-- Topic 3: Runge's Phenomenon & Error Bounds -->
+        <section class="card">
+            <h2 class="card-title">Runge's Phenomenon & Interpolation Errors</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                It is tempting to assume that increasing the number of interpolation points \(n\) (and thus the degree of the polynomial) always improves accuracy. However, this is not always true.
+            </p>
+
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; margin: 1.2rem 0 0.5rem; color: var(--primary);">Runge's Phenomenon</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                When interpolating functions with high-degree polynomials over <strong>equally spaced points</strong>, large oscillations can occur near the edges of the interval. A classic example is the Runge function:
+                \[f(x) = \frac{1}{1 + 25x^2}\]
+                Over the interval \([-1, 1]\), as \(n \to \infty\), the interpolation error near the boundaries grows without bound: \(\lim_{n\to\infty} \max |f(x) - P_n(x)| = \infty\).
+            </p>
+
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; margin: 1.2rem 0 0.5rem; color: var(--primary);">Error Bound Formula</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                If \(f(x)\) has \(n\) continuous derivatives, the error of the interpolating polynomial \(P_{n-1}(x)\) is given by:
+            </p>
+            <div class="latex-block">
+                \[E(x) = f(x) - P_{n-1}(x) = \frac{f^{(n)}(\xi)}{n!} \prod_{i=0}^{n-1} (x - x_i)\]
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                where \(\xi\) is some unknown point in the interval containing all the nodes and \(x\).
+            </p>
+
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; margin: 1.2rem 0 0.5rem; color: var(--primary);">Mitigating Interpolation Errors</h3>
+            <ul style="color: var(--text-secondary); margin-left: 2rem;">
+                <li style="margin-bottom: 0.5rem;"><strong>Chebyshev Nodes</strong>: Instead of equally spaced points, choose points clustered near the boundaries (roots of Chebyshev polynomials). This minimizes the product term \(\prod (x-x_i)\) and eliminates Runge's oscillations.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Spline Interpolation</strong>: Instead of a single high-degree polynomial, fit low-degree polynomials (usually cubics) piecewise between adjacent points.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-logo">
+                Newton's Divided Differences Calculator
+            </div>
+            <div class="footer-text">
+                Designed for college Numerical Methods PIT | <span>&copy; 2026</span>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
