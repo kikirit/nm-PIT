@@ -21,7 +21,7 @@
     <div class="nav-container">
       <a href="/" class="logo">
         <span class="logo-icon">∇</span>
-        Newton&rsquo;s Methods
+        <span class="logo-text-fire">Newton</span><span class="logo-text-cyan">&rsquo;s Methods</span>
       </a>
       <nav>
         <ul>
@@ -37,11 +37,14 @@
 
     <!-- ── Hero ─────────────────────────────────── -->
     <section class="hero fade-in">
-      <div class="hero-badge">Numerical Methods · PIT Project</div>
-      <h1>Newton's Divided<br>Differences</h1>
+      <div class="hero-badge">Numerical Methods &middot; PIT Project</div>
+      <h1>
+        <span class="hero-title-fire">Newton&rsquo;s Divided</span>
+        <span class="hero-title-fire">Differences</span>
+        <span class="hero-title-cyan">Interpolation Calculator</span>
+      </h1>
       <p class="hero-subtitle">
-        A professional educational calculator for polynomial interpolation.
-        Enter your data points to compute the divided difference table,
+        Enter your data points below to compute the divided difference table,
         construct the Newton polynomial, and visualize the interpolation curve.
       </p>
       <div class="hero-stats">
@@ -54,7 +57,7 @@
           <span class="hero-stat-label">Evaluation</span>
         </div>
         <div class="hero-stat">
-          <span class="hero-stat-num">n−1</span>
+          <span class="hero-stat-num">n&minus;1</span>
           <span class="hero-stat-label">Poly. Degree</span>
         </div>
         <div class="hero-stat">
@@ -88,25 +91,25 @@
         <form action="/calculate" method="POST" id="calc-form">
 
           <div class="form-group">
-            <label for="x_input">X Values — comma separated</label>
+            <label for="x_input">X Values &mdash; comma separated</label>
             <input type="text" id="x_input" name="x_values"
-              value="{{ x_val_str if x_val_str else '1, 2, 4' }}"
+              value="{{ x_val_str if x_val_str else '' }}"
               placeholder="e.g.  1, 2, 4" autocomplete="off" required>
             <div class="input-hint">Distinct x-coordinates of the known data points.</div>
           </div>
 
           <div class="form-group">
-            <label for="y_input">Y Values — comma separated</label>
+            <label for="y_input">Y Values &mdash; comma separated</label>
             <input type="text" id="y_input" name="y_values"
-              value="{{ y_val_str if y_val_str else '3, 11, 47' }}"
+              value="{{ y_val_str if y_val_str else '' }}"
               placeholder="e.g.  3, 11, 47" autocomplete="off" required>
-            <div class="input-hint">Corresponding f(x) values — must match length of X.</div>
+            <div class="input-hint">Corresponding f(x) values &mdash; must match length of X.</div>
           </div>
 
           <div class="form-group">
             <label for="x_target">Interpolation Target (x)</label>
             <input type="text" id="x_target" name="x_target"
-              value="{{ x_target if x_target else '3' }}"
+              value="{{ x_target if x_target else '' }}"
               placeholder="e.g.  3" autocomplete="off" required>
             <div class="input-hint">The point at which P(x) will be evaluated.</div>
           </div>
@@ -133,19 +136,19 @@
         </form>
       </section>
 
-      <!-- Right: Mathematical Concept Panel -->
+      <!-- Right: Mathematical Foundation -->
       <section class="card fade-in">
         <h2 class="card-title">
           <span class="card-title-icon">∑</span>
           Mathematical Foundation
         </h2>
 
-        <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.92rem; line-height:1.7;">
+        <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.91rem; line-height:1.75;">
           Polynomial interpolation finds a polynomial \(P_{n-1}(x)\) of degree at most \(n-1\)
           that passes exactly through \(n\) given data points \((x_0,y_0),\ldots,(x_{n-1},y_{n-1})\).
         </p>
-        <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.7; margin-bottom:1.2rem;">
-          Newton's form is built <em>incrementally</em> using <strong>divided differences</strong> as
+        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-bottom:1.2rem;">
+          Newton&rsquo;s form is built <em>incrementally</em> using <strong>divided differences</strong> as
           coefficients, making it efficient for adding new points without full recomputation.
         </p>
 
@@ -160,11 +163,11 @@
           \[f[x_i,x_{i+1},\ldots,x_{i+k}]=\frac{f[x_{i+1},\ldots,x_{i+k}]-f[x_i,\ldots,x_{i+k-1}]}{x_{i+k}-x_i}\]
         </div>
 
-        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1.2rem;">
+        <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:1.2rem;">
           <span class="chip">Incrementally extendable</span>
           <span class="chip">O(n) evaluation</span>
-          <span class="chip">Unique polynomial</span>
-          <span class="chip">Same as Lagrange form</span>
+          <span class="chip chip-cyan">Unique polynomial</span>
+          <span class="chip chip-cyan">Same as Lagrange form</span>
         </div>
       </section>
 
@@ -186,8 +189,8 @@
       Object.entries(ids).forEach(([id, val]) => {
         const el = document.getElementById(id);
         el.value = val;
-        el.style.borderColor = 'var(--c-p1)';
-        el.style.boxShadow = '0 0 0 3px rgba(15,224,162,.12)';
+        el.style.borderColor = 'var(--c-fire)';
+        el.style.boxShadow = '0 0 0 3px rgba(255,107,26,.13)';
         setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 700);
       });
     }
@@ -202,7 +205,7 @@
           style="animation:spin .8s linear infinite">
           <path d="M21 12a9 9 0 1 1-9-9"/>
         </svg>
-        Computing…`;
+        Computing&hellip;`;
       btn.disabled = true;
       btn.style.opacity = '0.75';
     });

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Theory &amp; Discussion — Newton's Divided Differences</title>
+  <meta name="description" content="Mathematical theory, derivation, error analysis, and comparison of Newton's Divided Differences with Lagrange interpolation.">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script>
     MathJax = {
@@ -19,7 +20,7 @@
     <div class="nav-container">
       <a href="/" class="logo">
         <span class="logo-icon">∇</span>
-        Newton&rsquo;s Methods
+        <span class="logo-text-fire">Newton</span><span class="logo-text-cyan">&rsquo;s Methods</span>
       </a>
       <nav>
         <ul>
@@ -35,10 +36,13 @@
 
     <section class="hero fade-in" style="margin-bottom:3rem;">
       <div class="hero-badge">Mathematical Theory</div>
-      <h1>Theory &amp; Discussion</h1>
+      <h1>
+        <span class="hero-title-fire">Theory &amp;</span>
+        <span class="hero-title-cyan">Discussion</span>
+      </h1>
       <p class="hero-subtitle">
         A rigorous treatment of polynomial interpolation theory, comparing methods, deriving error bounds,
-        and discussing numerical pitfalls such as Runge's phenomenon.
+        and discussing numerical pitfalls such as Runge&rsquo;s phenomenon.
       </p>
     </section>
 
@@ -49,7 +53,7 @@
         Newton vs. Lagrange Interpolation
       </h2>
 
-      <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.7;">
+      <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75;">
         Both formulations find the <em>unique</em> interpolating polynomial of degree \(\leq n-1\)
         through \(n\) given points. Their algebraic structures differ, which leads to important
         practical distinctions.
@@ -64,12 +68,12 @@
         </p>
       </div>
 
-      <div class="section-heading">Newton's Divided Difference Form</div>
+      <div class="section-heading">Newton&rsquo;s Divided Difference Form</div>
       <div class="info-card">
         \[P_{n-1}(x)=\sum_{k=0}^{n-1}f[x_0,\ldots,x_k]\,\omega_k(x),\quad \omega_k(x)=\prod_{j=0}^{k-1}(x-x_j)\]
         <p style="margin-top:.7rem;">
           Adding a new point \((x_n, y_n)\) only requires computing \(f[x_0,\ldots,x_n]\) and
-          appending one term — all existing coefficients are unchanged.
+          appending one term &mdash; all existing coefficients are unchanged.
         </p>
       </div>
 
@@ -94,7 +98,7 @@
 
       <div style="margin-top:1.2rem; display:flex; flex-wrap:wrap; gap:0.5rem;">
         <span class="chip">Same unique polynomial</span>
-        <span class="chip">Different algebraic form</span>
+        <span class="chip chip-cyan">Different algebraic form</span>
         <span class="chip">Newton favored for streaming data</span>
       </div>
     </section>
@@ -106,25 +110,25 @@
         Derivation of Coefficients
       </h2>
 
-      <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.7; margin-bottom:1rem;">
+      <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-bottom:1rem;">
         Assume the interpolating polynomial has the nested (Horner-like) Newton form:
       </p>
       <div class="latex-block">
         \[P_{n-1}(x)=c_0+c_1(x-x_0)+c_2(x-x_0)(x-x_1)+\cdots+c_{n-1}\prod_{j=0}^{n-2}(x-x_j)\]
       </div>
 
-      <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.7; margin:1rem 0;">
+      <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin:1rem 0;">
         Substituting the data points successively:
       </p>
       <div class="info-card">
-        <ul style="list-style:none; display:flex; flex-direction:column; gap:.6rem;">
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:.65rem;">
           <li>\(P(x_0)=c_0=y_0 \;\Rightarrow\; c_0=f[x_0]\)</li>
           <li>\(P(x_1)=c_0+c_1(x_1-x_0)=y_1 \;\Rightarrow\; c_1=\dfrac{y_1-y_0}{x_1-x_0}=f[x_0,x_1]\)</li>
           <li>By mathematical induction: \(c_k=f[x_0,x_1,\ldots,x_k]\)</li>
         </ul>
       </div>
 
-      <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.7; margin-top:1rem;">
+      <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-top:1rem;">
         The divided differences satisfy the recurrence, filling the table diagonally from left to right,
         each entry depending only on two adjacent entries from the previous column.
       </p>
@@ -138,20 +142,20 @@
       </h2>
 
       <div class="section-heading">Theoretical Error Bound</div>
-      <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.7; margin-bottom:.8rem;">
+      <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-bottom:.8rem;">
         If \(f\in C^n[a,b]\), the error at any point \(x\in[a,b]\) is:
       </p>
       <div class="latex-block">
         \[E(x)=f(x)-P_{n-1}(x)=\frac{f^{(n)}(\xi)}{n!}\prod_{i=0}^{n-1}(x-x_i)\]
       </div>
-      <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.7; margin-top:.8rem;">
+      <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-top:.8rem;">
         where \(\xi\) is some unknown value in the smallest interval containing \(x\) and
         all the nodes. The error depends on both the \(n\)-th derivative of \(f\) and the
         product \(\omega_n(x)=\prod(x-x_i)\).
       </p>
 
       <div class="section-heading">Runge&rsquo;s Phenomenon</div>
-      <div class="info-card" style="border-color: rgba(248,113,113,.25);">
+      <div class="info-card" style="border-color: rgba(255,107,26,.28);">
         Using equally-spaced nodes and increasing \(n\) does <em>not</em> always converge.
         For Runge&rsquo;s function:
         \[f(x)=\frac{1}{1+25x^2},\quad x\in[-1,1]\]
@@ -160,37 +164,37 @@
       </div>
 
       <div class="section-heading">Mitigation Strategies</div>
-      <div class="table-wrapper" style="max-width:600px; margin-top:.8rem;">
+      <div class="table-wrapper" style="max-width:620px; margin-top:.8rem;">
         <table>
           <thead>
             <tr><th>Strategy</th><th>Description</th><th>Trade-off</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td style="font-weight:600; color:var(--c-p1);">Chebyshev Nodes</td>
-              <td style="font-size:.85rem;">
+              <td style="font-weight:600; color:var(--c-amber);">Chebyshev Nodes</td>
+              <td style="font-size:.84rem;">
                 Cluster nodes at endpoints: \(x_k=\cos\!\left(\frac{2k+1}{2n}\pi\right)\)
               </td>
-              <td style="font-size:.85rem;">Requires non-uniform sampling</td>
+              <td style="font-size:.84rem;">Requires non-uniform sampling</td>
             </tr>
             <tr>
-              <td style="font-weight:600; color:var(--c-p1);">Cubic Splines</td>
-              <td style="font-size:.85rem;">Piecewise cubics with \(C^2\) continuity</td>
-              <td style="font-size:.85rem;">More coefficients to store</td>
+              <td style="font-weight:600; color:var(--c-amber);">Cubic Splines</td>
+              <td style="font-size:.84rem;">Piecewise cubics with \(C^2\) continuity</td>
+              <td style="font-size:.84rem;">More coefficients to store</td>
             </tr>
             <tr>
-              <td style="font-weight:600; color:var(--c-p1);">Limit Degree</td>
-              <td style="font-size:.85rem;">Keep \(n\leq 6\) for most engineering data</td>
-              <td style="font-size:.85rem;">Less accuracy for complex functions</td>
+              <td style="font-weight:600; color:var(--c-amber);">Limit Degree</td>
+              <td style="font-size:.84rem;">Keep \(n\leq 6\) for most engineering data</td>
+              <td style="font-size:.84rem;">Less accuracy for complex functions</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <div style="margin-top:1.2rem; display:flex; flex-wrap:wrap; gap:0.5rem;">
-        <span class="chip">More points ≠ more accuracy</span>
-        <span class="chip">Endpoints are most unstable</span>
-        <span class="chip">Chebyshev minimises ‖ωₙ‖</span>
+        <span class="chip">More points &ne; more accuracy</span>
+        <span class="chip chip-cyan">Endpoints are most unstable</span>
+        <span class="chip">Chebyshev minimises ‖&omega;ₙ‖</span>
       </div>
     </section>
 

@@ -201,16 +201,16 @@ def calculate():
             x_target=x_target_str
         )
 
-    # 5. Generate Matplotlib Plot — premium dark theme matching the redesigned UI
-    BG_BASE    = '#06090f'
-    BG_SURFACE = '#0d1320'
-    C_CURVE    = '#00c4d4'   # teal — polynomial curve
-    C_POINTS   = '#0fe0a2'   # emerald — data points
-    C_TARGET   = '#fbbf24'   # amber — interpolated star
-    C_GRID     = '#1e2d45'
-    C_TICK     = '#4a6080'
-    C_TEXT     = '#8fa3bf'
-    C_TITLE    = '#f1f5f9'
+    # 5. Generate Matplotlib Plot — Ember & Cyan theme
+    BG_BASE    = '#08060a'
+    BG_SURFACE = '#100c16'
+    C_CURVE    = '#ff6b1a'   # fire orange — polynomial curve
+    C_POINTS   = '#00d4f0'   # electric cyan — data points
+    C_TARGET   = '#ffab40'   # amber — interpolated star
+    C_GRID     = '#2a1a10'
+    C_TICK     = '#5a3e38'
+    C_TEXT     = '#a08880'
+    C_TITLE    = '#f5ede8'
 
     fig, ax = plt.subplots(figsize=(7, 4.5), facecolor=BG_BASE)
     ax.set_facecolor(BG_SURFACE)

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Results — Newton's Divided Differences</title>
+  <meta name="description" content="Interpolation result showing the divided difference table, Newton polynomial, and curve visualization.">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script>
     MathJax = {
@@ -19,7 +20,7 @@
     <div class="nav-container">
       <a href="/" class="logo">
         <span class="logo-icon">∇</span>
-        Newton&rsquo;s Methods
+        <span class="logo-text-fire">Newton</span><span class="logo-text-cyan">&rsquo;s Methods</span>
       </a>
       <nav>
         <ul>
@@ -34,9 +35,12 @@
   <main>
 
     <!-- ── Result Hero ──────────────────────────── -->
-    <section class="hero fade-in" style="margin-bottom: 3rem;">
+    <section class="hero fade-in" style="margin-bottom: 2.5rem;">
       <div class="hero-badge">Computation Complete</div>
-      <h1>Interpolation&nbsp;Result</h1>
+      <h1>
+        <span class="hero-title-fire">Interpolation</span>
+        <span class="hero-title-cyan">Result</span>
+      </h1>
       <p class="hero-subtitle">
         Divided difference table, Newton polynomial, and curve visualization generated successfully.
       </p>
@@ -83,10 +87,10 @@
           <span class="card-title-icon">⊞</span>
           Divided Difference Table
         </h2>
-        <p style="color:var(--text-secondary); font-size:0.85rem; line-height:1.6; margin-bottom:0.6rem;">
+        <p style="color:var(--text-secondary); font-size:0.84rem; line-height:1.65; margin-bottom:0.6rem;">
           Columns represent increasing-order differences. Cells marked
-          <span class="chip" style="font-size:0.68rem;">a</span> are coefficients \(a_k = f[x_0,\ldots,x_k]\)
-          used directly in the polynomial.
+          <span class="chip chip-cyan" style="font-size:0.66rem;">a</span> are coefficients
+          \(a_k = f[x_0,\ldots,x_k]\) used directly in the polynomial.
         </p>
 
         <div class="table-wrapper">
@@ -95,7 +99,7 @@
               <tr>
                 <th>\(i\)</th>
                 <th>\(x_i\)</th>
-                <th>\(f[\ ]\) &mdash; 0th</th>
+                <th>\(y_i\)</th>
                 {% for col_idx in range(1, x_values|length) %}
                 <th>
                   {% if col_idx == 1 %}1st
@@ -134,10 +138,10 @@
           <span class="card-title-icon">◈</span>
           Interpolation Curve
         </h2>
-        <p style="color:var(--text-secondary); font-size:0.85rem; line-height:1.6; margin-bottom:0.6rem;">
-          <span style="color:var(--c-p1); font-weight:600;">●</span> Original data points &nbsp;
-          <span style="color:#fbbf24; font-weight:600;">★</span> Interpolated point at \(x = {{ "%.4f"|format(x_target) }}\) &nbsp;
-          <span style="color:var(--c-p2); font-weight:600;">- -</span> Newton polynomial curve
+        <p style="color:var(--text-secondary); font-size:0.84rem; line-height:1.65; margin-bottom:0.6rem;">
+          <span style="color:var(--c-cyan); font-weight:600;">●</span> Known data points &nbsp;
+          <span style="color:var(--c-amber); font-weight:600;">★</span> Interpolated point at \(x = {{ "%.4f"|format(x_target) }}\) &nbsp;
+          <span style="color:var(--c-fire); font-weight:600;">&#8212;&#8212;</span> Newton polynomial curve
         </p>
         <div class="graph-container">
           <img class="graph-image" src="{{ plot_url }}" alt="Newton Interpolation Curve">
