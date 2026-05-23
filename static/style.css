@@ -1,7 +1,4 @@
-/* =============================================
-   Newton's Divided Differences
-   Theme: Ember & Cyan — inspired by fire/eye art
-   ============================================= */
+/*  Newton's Divided Differences*/
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -20,12 +17,12 @@
   --text-secondary: #a08880;
   --text-muted:     #5a3e38;
 
-  /* Brand — Cyan (eye glow) */
+  /* Brand — Cyan  */
   --c-cyan:   #00d4f0;
   --c-cyan2:  #28e8ff;
   --c-cyandim:#0090aa;
 
-  /* Brand — Fire (ember/flame) */
+  /* Brand — Fire */
   --c-fire:   #ff6b1a;
   --c-ember:  #e84c0a;
   --c-amber:  #ffab40;
@@ -88,7 +85,7 @@ body {
   position: relative;
 }
 
-/* Deep dark background with ember radial glows */
+/* Deep dark background */
 body::before {
   content: '';
   position: fixed;
@@ -102,7 +99,7 @@ body::before {
   z-index: 0;
 }
 
-/* Particle-like ember dots layer */
+/* Particle-like dots */
 body::after {
   content: '';
   position: fixed;
@@ -136,7 +133,7 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
-/* Thin ember glow line under nav */
+/* Thin ember glow line */
 header::after {
   content: '';
   position: absolute;
@@ -865,7 +862,7 @@ footer::before {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Staggered delays for child cards */
+/* Staggered delays*/
 .fade-in:nth-child(2) { animation-delay: 0.07s; }
 .fade-in:nth-child(3) { animation-delay: 0.14s; }
 .fade-in:nth-child(4) { animation-delay: 0.21s; }
