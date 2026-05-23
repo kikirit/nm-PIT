@@ -76,6 +76,13 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-base);
+  background-image: 
+    linear-gradient(to bottom, rgba(8, 6, 10, 0.86) 0%, rgba(8, 6, 10, 0.97) 60%, var(--bg-base) 100%),
+    url('hero_bg.png');
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: cover;
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.65;
   min-height: 100vh;
