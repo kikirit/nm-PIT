@@ -52,97 +52,61 @@ def cleanup_old_plots():
         pass
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
-    """Renders the main educational calculator page."""
-    return render_template("index.html")
-
-
-@app.route("/examples")
-def examples():
-    """Renders the worked examples page."""
-    return render_template("examples.html")
-
-
-@app.route("/discussion")
-def discussion():
-    """Renders the mathematical discussion page."""
-    return render_template("discussion.html")
-
-
-@app.route("/calculate", methods=["POST"])
-def calculate():
     """
-    Handles interpolation requests.
-    Validates inputs, calculates the divided difference table,
-    constructs the polynomial, plots the graph,
-    and renders the result page.
+    Renders the unified single-page educational calculator, worked examples, and theory.
+    Processes POST requests for interpolation calculations.
     """
+    if request.method == "GET":
+        return render_template(
+            "index.html",
+            y_result=None,
+            error=None,
+            x_val_str="",
+            y_val_str="",
+            x_target=""
+        )
 
     # 1. Retrieve raw inputs
-    
     x_val_str = request.form.get("x_values", "").strip()
     y_val_str = request.form.get("y_values", "").strip()
     x_target_str = request.form.get("x_target", "").strip()
 
     error_msg = None
+    x_target = None
+    x_values = []
+    y_values = []
 
     # 2. Input Validation
-    
-
     if not x_val_str or not y_val_str or not x_target_str:
-
         error_msg = "All fields are required. Please enter values."
-
     else:
-
         try:
-
             # Parse target interpolation point
             try:
                 x_target = float(x_target_str)
-
             except ValueError:
-                raise ValueError(
-                    "The interpolation point 'x' must be a valid number."
-                )
+                raise ValueError("The interpolation point 'x' must be a valid number.")
 
             # Parse X values
             try:
-                x_values = [
-                    float(x.strip())
-                    for x in x_val_str.split(",")
-                    if x.strip()
-                ]
-
+                x_values = [float(x.strip()) for x in x_val_str.split(",") if x.strip()]
             except ValueError:
-                raise ValueError(
-                    "X values must contain only numbers separated by commas."
-                )
+                raise ValueError("X values must contain only numbers separated by commas.")
 
             # Parse Y values
             try:
-                y_values = [
-                    float(y.strip())
-                    for y in y_val_str.split(",")
-                    if y.strip()
-                ]
-
+                y_values = [float(y.strip()) for y in y_val_str.split(",") if y.strip()]
             except ValueError:
-                raise ValueError(
-                    "Y values must contain only numbers separated by commas."
-                )
+                raise ValueError("Y values must contain only numbers separated by commas.")
 
             # Check for minimum points
             if len(x_values) < 2:
-
-                raise ValueError(
-                    "Please provide at least 2 data points (n >= 2)."
-                )
+                raise ValueError("Please provide at least 2 data points (n >= 2).")
 
             # Verify arrays are equal in size
             if len(x_values) != len(y_values):
-
                 raise ValueError(
                     f"The number of X values ({len(x_values)}) "
                     f"must match the number of Y values ({len(y_values)})."
@@ -150,19 +114,13 @@ def calculate():
 
             # Check for duplicate X values
             if len(x_values) != len(set(x_values)):
-
-                raise ValueError(
-                    "Duplicate X values are not allowed."
-                )
+                raise ValueError("Duplicate X values are not allowed.")
 
         except ValueError as ve:
-
             error_msg = str(ve)
 
     # 3. Validation Failed
-
     if error_msg:
-
         return render_template(
             "index.html",
             error=error_msg,
@@ -172,27 +130,11 @@ def calculate():
         )
 
     # 4. Perform Calculations
-
     try:
-
-        table = divided_difference_table(
-            x_values,
-            y_values
-        )
-
-        y_result = newton_interpolation(
-            x_values,
-            table,
-            x_target
-        )
-
-        poly_str = polynomial_string(
-            x_values,
-            table[0]
-        )
-
+        table = divided_difference_table(x_values, y_values)
+        y_result = newton_interpolation(x_values, table, x_target)
+        poly_str = polynomial_string(x_values, table[0])
     except ValueError as ve:
-
         return render_template(
             "index.html",
             error=str(ve),
@@ -280,67 +222,38 @@ def calculate():
     plt.tight_layout()
 
     # 6. Save Plot
-
     plot_filename = f"plot_{uuid.uuid4().hex}.png"
-
-    generated_dir = os.path.join(
-        app.root_path,
-        'static',
-        'generated'
-    )
+    generated_dir = os.path.join(app.root_path, 'static', 'generated')
 
     # Generate Base64 inline source
     buf = io.BytesIO()
-
-    plt.savefig(
-        buf,
-        format='png',
-        bbox_inches='tight',
-        dpi=140
-    )
-
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=140)
     buf.seek(0)
-
-    plot_base64 = base64.b64encode(
-        buf.getvalue()
-    ).decode('utf-8')
-
+    plot_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
     plot_url = f"data:image/png;base64,{plot_base64}"
 
     # Optional local save
     try:
-
         os.makedirs(generated_dir, exist_ok=True)
-
-        filepath = os.path.join(
-            generated_dir,
-            plot_filename
-        )
-
-        plt.savefig(
-            filepath,
-            format='png',
-            bbox_inches='tight',
-            dpi=140
-        )
-
+        filepath = os.path.join(generated_dir, plot_filename)
+        plt.savefig(filepath, format='png', bbox_inches='tight', dpi=140)
     except Exception:
         pass
 
     # Close figures to release memory
-
     plt.clf()
     plt.close('all')
 
     # Cleanup old plots
-
     cleanup_old_plots()
 
-    # 7. Render Results
-
+    # 7. Render unified template with results
     return render_template(
-        "result.html",
-        x_target=x_target,
+        "index.html",
+        x_val_str=x_val_str,
+        y_val_str=y_val_str,
+        x_target=x_target_str,
+        x_target_val=x_target,
         y_result=y_result,
         x_values=x_values,
         table=table,
@@ -349,10 +262,29 @@ def calculate():
     )
 
 
+@app.route("/examples")
+def examples():
+    """Redirects to the worked examples section on the home page."""
+    return redirect(url_for('home', _anchor='examples'))
+
+
+@app.route("/discussion")
+def discussion():
+    """Redirects to the discussion section on the home page."""
+    return redirect(url_for('home', _anchor='discussion'))
+
+
+@app.route("/calculate", methods=["GET", "POST"])
+def calculate():
+    """Fallback redirect to main page."""
+    return redirect(url_for('home'))
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     """Fallback redirect to landing page for missing routes."""
     return redirect(url_for('home'))
+
 
 
 if __name__ == "__main__":

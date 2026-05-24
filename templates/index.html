@@ -25,9 +25,9 @@
       </a>
       <nav>
         <ul>
-          <li><a href="/" class="active">Calculator</a></li>
-          <li><a href="/examples">Worked Examples</a></li>
-          <li><a href="/discussion">Theory</a></li>
+          <li><a href="#discussion" class="active">Discussion</a></li>
+          <li><a href="#calculator">Calculator</a></li>
+          <li><a href="#examples">Worked Examples</a></li>
         </ul>
       </nav>
     </div>
@@ -47,114 +47,599 @@
         Enter your data points below to compute the divided difference table,
         construct the Newton polynomial, and visualize the interpolation curve.
       </p>
-      <div class="hero-stats">
+    </section>
 
+    <!-- ── Section 1: Mathematical Discussion ───── -->
+    <section id="discussion" class="spa-section fade-in">
+      <div class="page-section-title">
+        <span class="title-sub">Newton&rsquo;s Divided Differences</span>
+        <span class="title-main">Mathematical Discussion</span>
+      </div>
 
-    <!-- ── Two-column layout ─────────────────── -->
-    <div class="grid-2">
-
-      <!-- Left: Interactive Calculator -->
-      <section class="card fade-in">
+      <!-- Card 1: Newton vs Lagrange -->
+      <div class="card">
         <h2 class="card-title">
-          <span class="card-title-icon">⌥</span>
-          Interactive Calculator
+          <span class="card-title-icon">⇌</span>
+          Newton vs. Lagrange Interpolation
         </h2>
 
-        {% if error %}
-        <div class="alert-error" id="error-alert">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <span>{{ error }}</span>
+        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75;">
+          Both formulations find the <em>unique</em> interpolating polynomial of degree \(\leq n-1\)
+          through \(n\) given points. Their algebraic structures differ, which leads to important
+          practical distinctions.
+        </p>
+
+        <div class="section-heading">Lagrange Form</div>
+        <div class="info-card">
+          \[P_{n-1}(x)=\sum_{i=0}^{n-1}y_i\prod_{\substack{j=0\\j\ne i}}^{n-1}\frac{x-x_j}{x_i-x_j}\]
+          <p style="margin-top:.7rem;">
+            Elegant and symmetric, but the basis polynomials \(L_i(x)\) must be entirely recomputed
+            whenever a data point is added or removed.
+          </p>
         </div>
-        {% endif %}
 
-        <form action="/calculate" method="POST" id="calc-form">
+        <div class="section-heading">Newton&rsquo;s Divided Difference Form</div>
+        <div class="info-card">
+          \[P_{n-1}(x)=\sum_{k=0}^{n-1}f[x_0,\ldots,x_k]\,\omega_k(x),\quad \omega_k(x)=\prod_{j=0}^{k-1}(x-x_j)\]
+          <p style="margin-top:.7rem;">
+            Adding a new point \((x_n, y_n)\) only requires computing \(f[x_0,\ldots,x_n]\) and
+            appending one term &mdash; all existing coefficients are unchanged.
+          </p>
+        </div>
 
-          <div class="form-group">
-            <label for="x_input">X Values &mdash; comma separated</label>
-            <input type="text" id="x_input" name="x_values"
-              value="{{ x_val_str if x_val_str else '' }}"
-              placeholder="e.g.  1, 2, 4" autocomplete="off" required>
-            <div class="input-hint">Distinct x-coordinates of the known data points.</div>
+        <div class="section-heading">Computational Complexity Comparison</div>
+        <div class="table-wrapper" style="max-width:560px; margin-top:0.8rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>Operation</th>
+                <th>Lagrange</th>
+                <th>Newton (DD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Initial setup</td><td>None</td><td>\(O(n^2)\)</td></tr>
+              <tr><td>Evaluate at one point</td><td>\(O(n^2)\)</td><td>\(O(n)\)</td></tr>
+              <tr><td>Add a new data point</td><td>\(O(n^2)\)</td><td>\(O(n)\)</td></tr>
+              <tr><td>Modify existing data</td><td>\(O(n)\)</td><td>\(O(n^2)\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:1.2rem; display:flex; flex-wrap:wrap; gap:0.5rem;">
+          <span class="chip">Same unique polynomial</span>
+          <span class="chip chip-cyan">Different algebraic form</span>
+          <span class="chip">Newton favored for streaming data</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Mathematical Derivation -->
+      <div class="card" style="margin-top:2rem;">
+        <h2 class="card-title">
+          <span class="card-title-icon">∂</span>
+          Derivation of Coefficients
+        </h2>
+
+        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-bottom:1rem;">
+          Assume the interpolating polynomial has the nested (Horner-like) Newton form:
+        </p>
+        <div class="latex-block">
+          \[P_{n-1}(x)=c_0+c_1(x-x_0)+c_2(x-x_0)(x-x_1)+\cdots+c_{n-1}\prod_{j=0}^{n-2}(x-x_j)\]
+        </div>
+
+        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin:1rem 0;">
+          Substituting the data points successively:
+        </p>
+        <div class="info-card">
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:.65rem;">
+            <li>\(P(x_0)=c_0=y_0 \;\Rightarrow\; c_0=f[x_0]\)</li>
+            <li>\(P(x_1)=c_0+c_1(x_1-x_0)=y_1 \;\Rightarrow\; c_1=\dfrac{y_1-y_0}{x_1-x_0}=f[x_0,x_1]\)</li>
+            <li>By mathematical induction: \(c_k=f[x_0,x_1,\ldots,x_k]\)</li>
+          </ul>
+        </div>
+
+        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-top:1rem;">
+          The divided differences satisfy the recurrence, filling the table diagonally from left to right,
+          each entry depending only on two adjacent entries from the previous column.
+        </p>
+      </div>
+
+      <!-- Card 3: Error Bound & Runge -->
+      <div class="card" style="margin-top:2rem;">
+        <h2 class="card-title">
+          <span class="card-title-icon">⚠</span>
+          Interpolation Error &amp; Runge&rsquo;s Phenomenon
+        </h2>
+
+        <div class="section-heading">Theoretical Error Bound</div>
+        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-bottom:.8rem;">
+          If \(f\in C^n[a,b]\), the error at any point \(x\in[a,b]\) is:
+        </p>
+        <div class="latex-block">
+          \[E(x)=f(x)-P_{n-1}(x)=\frac{f^{(n)}(\xi)}{n!}\prod_{i=0}^{n-1}(x-x_i)\]
+        </div>
+        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-top:.8rem;">
+          where \(\xi\) is some unknown value in the smallest interval containing \(x\) and
+          all the nodes. The error depends on both the \(n\)-th derivative of \(f\) and the
+          product \(\omega_n(x)=\prod(x-x_i)\).
+        </p>
+
+        <div class="section-heading">Runge&rsquo;s Phenomenon</div>
+        <div class="info-card" style="border-color: rgba(255,107,26,.28);">
+          Using equally-spaced nodes and increasing \(n\) does <em>not</em> always converge.
+          For Runge&rsquo;s function:
+          \[f(x)=\frac{1}{1+25x^2},\quad x\in[-1,1]\]
+          high-degree polynomial interpolation produces large oscillations near the endpoints,
+          even though the function is smooth.
+        </div>
+
+        <div class="section-heading">Mitigation Strategies</div>
+        <div class="table-wrapper" style="max-width:620px; margin-top:.8rem;">
+          <table>
+            <thead>
+              <tr><th>Strategy</th><th>Description</th><th>Trade-off</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600; color:var(--c-amber);">Chebyshev Nodes</td>
+                <td style="font-size:.84rem;">
+                  Cluster nodes at endpoints: \(x_k=\cos\!\left(\frac{2k+1}{2n}\pi\right)\)
+                </td>
+                <td style="font-size:.84rem;">Requires non-uniform sampling</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600; color:var(--c-amber);">Cubic Splines</td>
+                <td style="font-size:.84rem;">Piecewise cubics with \(C^2\) continuity</td>
+                <td style="font-size:.84rem;">More coefficients to store</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600; color:var(--c-amber);">Limit Degree</td>
+                <td style="font-size:.84rem;">Keep \(n\leq 6\) for most engineering data</td>
+                <td style="font-size:.84rem;">Less accuracy for complex functions</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:1.2rem; display:flex; flex-wrap:wrap; gap:0.5rem;">
+          <span class="chip">Higher degree may increase oscillation</span>
+          <span class="chip chip-cyan">Endpoints are most unstable</span>
+          <span class="chip">Chebyshev minimises ‖&omega;ₙ‖</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 2: Interactive Calculator ────── -->
+    <section id="calculator" class="spa-section fade-in">
+      <div class="grid-2">
+
+        <!-- Interactive Calculator Card -->
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">⌥</span>
+            Interactive Calculator
+          </h2>
+
+          {% if error %}
+          <div class="alert-error" id="error-alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>{{ error }}</span>
+          </div>
+          {% endif %}
+
+          <form action="/" method="POST" id="calc-form">
+
+            <div class="form-group">
+              <label for="x_input">X Values &mdash; comma separated</label>
+              <input type="text" id="x_input" name="x_values"
+                value="{{ x_val_str if x_val_str else '' }}"
+                placeholder="e.g.  1, 2, 4" autocomplete="off" required>
+              <div class="input-hint">Distinct x-coordinates of the known data points.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="y_input">Y Values &mdash; comma separated</label>
+              <input type="text" id="y_input" name="y_values"
+                value="{{ y_val_str if y_val_str else '' }}"
+                placeholder="e.g.  3, 11, 47" autocomplete="off" required>
+              <div class="input-hint">Corresponding f(x) values &mdash; must match length of X.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="x_target">Interpolation Target (x)</label>
+              <input type="text" id="x_target" name="x_target"
+                value="{{ x_target if x_target else '' }}"
+                placeholder="e.g.  3" autocomplete="off" required>
+              <div class="input-hint">The point at which P(x) will be evaluated.</div>
+            </div>
+
+            <div class="preset-section">
+              <div class="preset-title">Quick-load demo dataset</div>
+              <div class="preset-buttons">
+                <button type="button" class="btn-preset" onclick="loadPreset('1,3','2,8','2')">Linear (n=2)</button>
+                <button type="button" class="btn-preset" onclick="loadPreset('1,2,4','3,11,47','3')">Quadratic (n=3)</button>
+                <button type="button" class="btn-preset" onclick="loadPreset('0,1,2,5','2,3,12,147','3')">Cubic (n=4)</button>
+                <button type="button" class="btn-preset" onclick="loadPreset('-2,-1,0,1,2','-15,-3,1,3,17','0.5')">Degree-4 (n=5)</button>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <button type="submit" class="btn btn-primary" id="btn-submit">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Calculate &amp; Plot
+            </button>
+          </form>
+        </div>
+
+        <!-- Mathematical Foundation Card -->
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">∑</span>
+            Mathematical Foundation
+          </h2>
+
+          <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.91rem; line-height:1.75;">
+            Polynomial interpolation finds a polynomial \(P_{n-1}(x)\) of degree at most \(n-1\)
+            that passes exactly through \(n\) given data points \((x_0,y_0),\ldots,(x_{n-1},y_{n-1})\).
+          </p>
+          <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-bottom:1.2rem;">
+            Newton&rsquo;s form is built <em>incrementally</em> using <strong>divided differences</strong> as
+            coefficients, making it efficient for adding new points without full recomputation.
+          </p>
+
+          <div class="section-heading">General Newton Polynomial</div>
+          <div class="latex-block">
+            \[P_{n-1}(x)=f[x_0]+\sum_{k=1}^{n-1}f[x_0,\ldots,x_k]\prod_{j=0}^{k-1}(x-x_j)\]
           </div>
 
-          <div class="form-group">
-            <label for="y_input">Y Values &mdash; comma separated</label>
-            <input type="text" id="y_input" name="y_values"
-              value="{{ y_val_str if y_val_str else '' }}"
-              placeholder="e.g.  3, 11, 47" autocomplete="off" required>
-            <div class="input-hint">Corresponding f(x) values &mdash; must match length of X.</div>
+          <div class="section-heading">Divided Difference Recurrence</div>
+          <div class="latex-block">
+            \[f[x_i]=y_i\]
+            \[f[x_i,x_{i+1},\ldots,x_{i+k}]=\frac{f[x_{i+1},\ldots,x_{i+k}]-f[x_i,\ldots,x_{i+k-1}]}{x_{i+k}-x_i}\]
           </div>
 
-          <div class="form-group">
-            <label for="x_target">Interpolation Target (x)</label>
-            <input type="text" id="x_target" name="x_target"
-              value="{{ x_target if x_target else '' }}"
-              placeholder="e.g.  3" autocomplete="off" required>
-            <div class="input-hint">The point at which P(x) will be evaluated.</div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:1.2rem;">
+            <span class="chip">Incrementally extendable</span>
+            <span class="chip">O(n) evaluation</span>
+            <span class="chip chip-cyan">Unique polynomial</span>
+            <span class="chip chip-cyan">Equivalent to Lagrange</span>
           </div>
+        </div>
 
-          <div class="preset-section">
-            <div class="preset-title">Quick-load demo dataset</div>
-            <div class="preset-buttons">
-              <button type="button" class="btn-preset" onclick="loadPreset('1,3','2,8','2')">Linear (n=2)</button>
-              <button type="button" class="btn-preset" onclick="loadPreset('1,2,4','3,11,47','3')">Quadratic (n=3)</button>
-              <button type="button" class="btn-preset" onclick="loadPreset('0,1,2,5','2,3,12,147','3')">Cubic (n=4)</button>
-              <button type="button" class="btn-preset" onclick="loadPreset('-2,-1,0,1,2','-15,-3,1,3,17','0.5')">Degree-4 (n=5)</button>
+      </div><!-- /.grid-2 -->
+    </section>
+
+    <!-- ── Section 1.5: Results (Conditional) ──── -->
+    {% if y_result is not none %}
+    <section id="results-section" class="spa-section fade-in">
+      <div class="page-section-title">
+        <span class="title-sub">Computation Complete</span>
+        <span class="title-main">Interpolation Results</span>
+      </div>
+
+      <!-- Summary Card -->
+      <div class="card">
+        <h2 class="card-title">
+          <span class="card-title-icon">✓</span>
+          Interpolation Summary
+        </h2>
+
+        <div class="result-summary-grid">
+          <div class="result-summary-item">
+            <div class="result-summary-label">Target x</div>
+            <div class="result-summary-value">{{ "%.4f"|format(x_target_val|float) }}</div>
+          </div>
+          <div class="result-summary-item">
+            <div class="result-summary-label">Interpolated P(x)</div>
+            <div class="result-summary-value highlight">{{ "%.6f"|format(y_result|float) }}</div>
+          </div>
+          <div class="result-summary-item">
+            <div class="result-summary-label">Data Points (n)</div>
+            <div class="result-summary-value">{{ x_values|length }}</div>
+          </div>
+          <div class="result-summary-item">
+            <div class="result-summary-label">Polynomial Degree</div>
+            <div class="result-summary-value">{{ x_values|length - 1 }}</div>
+          </div>
+        </div>
+
+        <div class="result-summary-label" style="text-align:left; margin-bottom:0.4rem;">
+          Constructed Newton Polynomial
+        </div>
+        <div class="result-polynomial">{{ poly_str }}</div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Divided Difference Table -->
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">⊞</span>
+            Divided Difference Table
+          </h2>
+          <p style="color:var(--text-secondary); font-size:0.84rem; line-height:1.65; margin-bottom:0.6rem;">
+            Columns represent increasing-order differences. Cells marked
+            <span class="chip chip-cyan" style="font-size:0.66rem;">a</span> are coefficients
+            \(a_k = f[x_0,\ldots,x_k]\) used directly in the polynomial.
+          </p>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>\(i\)</th>
+                  <th>\(x_i\)</th>
+                  <th>\(y_i\)</th>
+                  {% for col_idx in range(1, x_values|length) %}
+                  <th>
+                    {% if col_idx == 1 %}1st
+                    {% elif col_idx == 2 %}2nd
+                    {% elif col_idx == 3 %}3rd
+                    {% else %}{{ col_idx }}th{% endif %}
+                    Diff
+                  </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for i in range(x_values|length) %}
+                <tr>
+                  <td style="color:var(--text-muted); font-weight:600;">{{ i }}</td>
+                  <td>{{ "%.4f"|format(x_values[i]) }}</td>
+                  <td class="{% if i == 0 %}coefficient-highlight{% endif %}">
+                    {{ "%.6f"|format(table[i][0]) }}
+                  </td>
+                  {% for j in range(1, x_values|length) %}
+                    {% set val = table[i][j] %}
+                    <td class="{% if i == 0 and val is not none %}coefficient-highlight{% endif %}">
+                      {% if val is not none %}{{ "%.6f"|format(val) }}{% else %}&mdash;{% endif %}
+                    </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Graph -->
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">◈</span>
+            Interpolation Curve
+          </h2>
+          <p style="color:var(--text-secondary); font-size:0.84rem; line-height:1.65; margin-bottom:0.6rem;">
+            <span style="color:var(--c-cyan); font-weight:600;">●</span> Known data points &nbsp;
+            <span style="color:var(--c-amber); font-weight:600;">★</span> Interpolated point at \(x = {{ "%.4f"|format(x_target_val|float) }}\) &nbsp;
+            <span style="color:var(--c-fire); font-weight:600;">&#8212;&#8212;</span> Newton polynomial curve
+          </p>
+          <div class="graph-container">
+            <img class="graph-image" src="{{ plot_url }}" alt="Newton Interpolation Curve">
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- ── Section 2: Worked Examples ──────────── -->
+    <section id="examples" class="spa-section fade-in">
+      <div class="page-section-title">
+        <span class="title-sub">Step-by-Step Solutions</span>
+        <span class="title-main">Worked Examples</span>
+      </div>
+
+      <!-- EXAMPLE 1 — Quadratic Interpolation -->
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.8rem; flex-wrap:wrap;">
+          <h2 class="card-title" style="margin-bottom:0;">
+            <span class="card-title-icon">①</span>
+            Quadratic Interpolation
+          </h2>
+          <span class="chip">n = 3 points</span>
+          <span class="chip chip-cyan">degree 2 polynomial</span>
+        </div>
+
+        <div class="info-card">
+          <strong>Problem:</strong> Given the data points
+          \((1,\,3),\; (2,\,11),\; (4,\,47)\),
+          construct the Newton interpolating polynomial and find \(P(3)\).
+        </div>
+
+        <!-- Step 1 -->
+        <div class="step-container">
+          <div class="step-node">1</div>
+          <div class="step-title">Identify the data</div>
+          <div class="step-content">
+            \[x_0=1,\; y_0=3 \qquad x_1=2,\; y_1=11 \qquad x_2=4,\; y_2=47\]
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-container">
+          <div class="step-node">2</div>
+          <div class="step-title">First-order divided differences</div>
+          <div class="step-content">
+            \[f[x_0,x_1]=\frac{f(x_1)-f(x_0)}{x_1-x_0}=\frac{11-3}{2-1}=\frac{8}{1}=8\]
+            \[f[x_1,x_2]=\frac{f(x_2)-f(x_1)}{x_2-x_1}=\frac{47-11}{4-2}=\frac{36}{2}=18\]
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-container">
+          <div class="step-node">3</div>
+          <div class="step-title">Second-order divided difference</div>
+          <div class="step-content">
+            \[f[x_0,x_1,x_2]=\frac{f[x_1,x_2]-f[x_0,x_1]}{x_2-x_0}=\frac{18-8}{4-1}=\frac{10}{3}\approx3.\overline{3}\]
+          </div>
+        </div>
+
+        <!-- Step 4 — Table -->
+        <div class="step-container">
+          <div class="step-node">4</div>
+          <div class="step-title">Divided difference table</div>
+          <div class="step-content">
+            <div class="table-wrapper" style="max-width:480px;">
+              <table>
+                <thead>
+                  <tr><th>\(x_i\)</th><th>\(y_i\) (0th)</th><th>1st Diff</th><th>2nd Diff</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1.0</td>
+                    <td class="coefficient-highlight">3.0000</td>
+                    <td class="coefficient-highlight">8.0000</td>
+                    <td class="coefficient-highlight">3.3333</td>
+                  </tr>
+                  <tr><td>2.0</td><td>11.0000</td><td>18.0000</td><td>&mdash;</td></tr>
+                  <tr><td>4.0</td><td>47.0000</td><td>&mdash;</td><td>&mdash;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="margin-top:.75rem; font-size:.81rem; color:var(--text-muted);">
+              Highlighted cells are the polynomial coefficients \(a_0, a_1, a_2\).
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step-container">
+          <div class="step-node">5</div>
+          <div class="step-title">Construct the Newton polynomial</div>
+          <div class="step-content">
+            \[P_2(x)=a_0+a_1(x-x_0)+a_2(x-x_0)(x-x_1)\]
+            \[P_2(x)=3+8(x-1)+\tfrac{10}{3}(x-1)(x-2)\]
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step-container" style="margin-bottom:0;">
+          <div class="step-node">6</div>
+          <div class="step-title">Evaluate at x = 3</div>
+          <div class="step-content">
+            \[P_2(3)=3+8(3-1)+\tfrac{10}{3}(3-1)(3-2)\]
+            \[=3+8(2)+\tfrac{10}{3}(2)(1)=3+16+\tfrac{20}{3}=19+6.6\overline{6}\]
+            <div class="info-card" style="margin-top:.8rem; border-color:rgba(0,212,240,.25);">
+              \[\boxed{P_2(3) \approx 25.6667}\]
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="divider"></div>
-
-          <button type="submit" class="btn btn-primary" id="btn-submit">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
-            Calculate &amp; Plot
-          </button>
-        </form>
-      </section>
-
-      <!-- Right: Mathematical Foundation -->
-      <section class="card fade-in">
-        <h2 class="card-title">
-          <span class="card-title-icon">∑</span>
-          Mathematical Foundation
-        </h2>
-
-        <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.91rem; line-height:1.75;">
-          Polynomial interpolation finds a polynomial \(P_{n-1}(x)\) of degree at most \(n-1\)
-          that passes exactly through \(n\) given data points \((x_0,y_0),\ldots,(x_{n-1},y_{n-1})\).
-        </p>
-        <p style="color:var(--text-secondary); font-size:0.91rem; line-height:1.75; margin-bottom:1.2rem;">
-          Newton&rsquo;s form is built <em>incrementally</em> using <strong>divided differences</strong> as
-          coefficients, making it efficient for adding new points without full recomputation.
-        </p>
-
-        <div class="section-heading">General Newton Polynomial</div>
-        <div class="latex-block">
-          \[P_{n-1}(x)=f[x_0]+\sum_{k=1}^{n-1}f[x_0,\ldots,x_k]\prod_{j=0}^{k-1}(x-x_j)\]
+      <!-- EXAMPLE 2 — Cubic Interpolation -->
+      <div class="card" style="margin-top:2rem;">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.8rem; flex-wrap:wrap;">
+          <h2 class="card-title" style="margin-bottom:0;">
+            <span class="card-title-icon">②</span>
+            Cubic Interpolation
+          </h2>
+          <span class="chip">n = 4 points</span>
+          <span class="chip chip-cyan">degree 3 polynomial</span>
         </div>
 
-        <div class="section-heading">Divided Difference Recurrence</div>
-        <div class="latex-block">
-          \[f[x_i]=y_i\]
-          \[f[x_i,x_{i+1},\ldots,x_{i+k}]=\frac{f[x_{i+1},\ldots,x_{i+k}]-f[x_i,\ldots,x_{i+k-1}]}{x_{i+k}-x_i}\]
+        <div class="info-card">
+          <strong>Problem:</strong> Given the data points
+          \((0,\,2),\; (1,\,3),\; (2,\,12),\; (5,\,147)\),
+          determine the Newton polynomial of degree 3 and evaluate it at \(x=3\).
         </div>
 
-        <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:1.2rem;">
-          <span class="chip">Incrementally extendable</span>
-          <span class="chip">O(n) evaluation</span>
-          <span class="chip chip-cyan">Unique polynomial</span>
-          <span class="chip chip-cyan">Equivalent to Lagrange</span>
+        <!-- Step 1 -->
+        <div class="step-container">
+          <div class="step-node">1</div>
+          <div class="step-title">Identify the data</div>
+          <div class="step-content">
+            \[x_0=0,\;y_0=2 \quad x_1=1,\;y_1=3 \quad x_2=2,\;y_2=12 \quad x_3=5,\;y_3=147\]
+          </div>
         </div>
-      </section>
 
-    </div><!-- /.grid-2 -->
+        <!-- Step 2 -->
+        <div class="step-container">
+          <div class="step-node">2</div>
+          <div class="step-title">First-order divided differences</div>
+          <div class="step-content">
+            \[f[x_0,x_1]=\frac{3-2}{1-0}=1 \qquad f[x_1,x_2]=\frac{12-3}{2-1}=9 \qquad f[x_2,x_3]=\frac{147-12}{5-2}=\frac{135}{3}=45\]
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-container">
+          <div class="step-node">3</div>
+          <div class="step-title">Second-order divided differences</div>
+          <div class="step-content">
+            \[f[x_0,x_1,x_2]=\frac{9-1}{2-0}=\frac{8}{2}=4 \qquad f[x_1,x_2,x_3]=\frac{45-9}{5-1}=\frac{36}{4}=9\]
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-container">
+          <div class="step-node">4</div>
+          <div class="step-title">Third-order divided difference</div>
+          <div class="step-content">
+            \[f[x_0,x_1,x_2,x_3]=\frac{9-4}{5-0}=\frac{5}{5}=1\]
+          </div>
+        </div>
+
+        <!-- Step 5 — Table -->
+        <div class="step-container">
+          <div class="step-node">5</div>
+          <div class="step-title">Complete divided difference table</div>
+          <div class="step-content">
+            <div class="table-wrapper" style="max-width:580px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>\(x_i\)</th><th>\(y_i\) (0th)</th>
+                    <th>1st Diff</th><th>2nd Diff</th><th>3rd Diff</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>0.0</td>
+                    <td class="coefficient-highlight">2.0000</td>
+                    <td class="coefficient-highlight">1.0000</td>
+                    <td class="coefficient-highlight">4.0000</td>
+                    <td class="coefficient-highlight">1.0000</td>
+                  </tr>
+                  <tr><td>1.0</td><td>3.0000</td><td>9.0000</td><td>9.0000</td><td>&mdash;</td></tr>
+                  <tr><td>2.0</td><td>12.0000</td><td>45.0000</td><td>&mdash;</td><td>&mdash;</td></tr>
+                  <tr><td>5.0</td><td>147.0000</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step-container">
+          <div class="step-node">6</div>
+          <div class="step-title">Construct the Newton polynomial</div>
+          <div class="step-content">
+            \[P_3(x)=2+1\cdot(x-0)+4\cdot(x-0)(x-1)+1\cdot(x-0)(x-1)(x-2)\]
+            \[P_3(x)=2+x+4x(x-1)+x(x-1)(x-2)\]
+          </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="step-container" style="margin-bottom:0;">
+          <div class="step-node">7</div>
+          <div class="step-title">Evaluate at x = 3</div>
+          <div class="step-content">
+            \[P_3(3)=2+(3)+4(3)(3-1)+(3)(3-1)(3-2)\]
+            \[=2+3+4(3)(2)+(3)(2)(1)=5+24+6=35\]
+            <div class="info-card" style="margin-top:.8rem; border-color:rgba(0,212,240,.25);">
+              \[\boxed{P_3(3)=35}\]
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
 
   </main>
 
@@ -192,7 +677,77 @@
       btn.disabled = true;
       btn.style.opacity = '0.75';
     });
+
+    /* ── IntersectionObserver for Active Section Highlighting ── */
+    document.addEventListener("DOMContentLoaded", () => {
+      const sections = document.querySelectorAll("section[id]");
+      const navLinks = document.querySelectorAll("nav ul li a");
+
+      const observerOptions = {
+        root: null,
+        rootMargin: "-25% 0px -55% 0px",
+        threshold: 0
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("id");
+            navLinks.forEach((link) => {
+              const href = link.getAttribute("href");
+              if (href === `#${id}`) {
+                link.classList.add("active");
+              } else {
+                link.classList.remove("active");
+              }
+            });
+          }
+        });
+      }, observerOptions);
+
+      sections.forEach((section) => observer.observe(section));
+
+      // Handle direct hash navigation on page load
+      if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }, 300);
+        }
+      } else {
+        // If calculation results just computed, scroll to the results!
+        const resultsSec = document.getElementById("results-section");
+        const errorAlert = document.getElementById("error-alert");
+        if (resultsSec) {
+          setTimeout(() => {
+            resultsSec.scrollIntoView({ behavior: 'smooth' });
+          }, 200);
+        } else if (errorAlert) {
+          setTimeout(() => {
+            errorAlert.scrollIntoView({ behavior: 'smooth' });
+          }, 200);
+        }
+      }
+
+      // Smooth scroll on clicking nav links
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth' });
+              // Update URL hash without jumping page
+              history.pushState(null, null, href);
+            }
+          }
+        });
+      });
+    });
   </script>
+
 
   <style>
     @keyframes spin { to { transform: rotate(360deg); } }

@@ -894,3 +894,50 @@ footer::before {
   .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
   .hero-stat:last-child { border-bottom: none; }
 }
+
+/* ─── Single Page SPA Refinements ───────────────── */
+.page-section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800;
+  text-align: center;
+  margin-top: 6rem;
+  margin-bottom: 2.5rem;
+  letter-spacing: -0.02em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.page-section-title span.title-main {
+  background: var(--grad-fire);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.page-section-title span.title-sub {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.page-section-title::after {
+  content: '';
+  width: 60px;
+  height: 3px;
+  background: var(--grad-brand);
+  border-radius: 10px;
+  margin-top: 1.1rem;
+  box-shadow: 0 0 12px rgba(255, 107, 26, 0.3);
+}
+
+#calculator, #results-section, #examples, #discussion {
+  scroll-margin-top: 5.5rem;
+}
+
+.spa-section {
+  margin-bottom: 2rem;
+}
